@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="net.nipa011.www.phone2mycomputer.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="로컬IP 입력 : " />
+
+        <EditText
+            android:id="@+id/editIPaddr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minWidth="200dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="확인" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="이미지 폴더 리스트" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="컴퓨터로 전송하고 싶은 사진 또는 이미지가 들어있는 폴더를 추가해주세요." />
+
+
+    <ListView
+        android:id="@+id/showFolderTree"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+    </ListView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="btnFolderAdd"
+            android:text="폴더 추가" />
+
+        <Button
+            android:id="@+id/folderDel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="폴더 삭제" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnStartOff"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="시작하기" />
+
+</LinearLayout>
