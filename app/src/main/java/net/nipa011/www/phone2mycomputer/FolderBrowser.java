@@ -3,6 +3,7 @@ package net.nipa011.www.phone2mycomputer;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -34,6 +35,17 @@ public class FolderBrowser extends ListActivity {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                finish();
+            }
+        });
+
+        Button ok = (Button) findViewById(R.id.btnFolderConfirm);
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = getIntent();
+                intent.putExtra("addr", getDir());
+                setResult(RESULT_OK, intent);
                 finish();
             }
         });
@@ -79,7 +91,6 @@ public class FolderBrowser extends ListActivity {
                 setDir(path.get(position));
             else {
                 new AlertDialog.Builder(this)
-                        // .setIcon(R.drawable.ic_launcher)
                         .setTitle("[" + file.getName() + "] folder can't be read!")
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
@@ -89,7 +100,6 @@ public class FolderBrowser extends ListActivity {
             }
         } else {
             new AlertDialog.Builder(this)
-                    //  .setIcon(R.drawable.ic_launcher)
                     .setTitle("[" + file.getName() + "]")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
