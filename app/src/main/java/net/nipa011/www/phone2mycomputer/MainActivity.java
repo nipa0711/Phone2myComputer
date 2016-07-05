@@ -89,14 +89,15 @@ public class MainActivity extends Activity {
             }
         });
 
-        Button StartEnd = (Button) findViewById(R.id.btnStartEnd);
-        StartEnd.setOnClickListener(new View.OnClickListener() {
+        final Button fileTransfer = (Button) findViewById(R.id.btnTransfer);
+        fileTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 폴더 목록을 ArrayList 에 추가
                 ArrayList<String> folders = new ArrayList<String>();
 
                 SparseBooleanArray checkedItems = listView.getCheckedItemPositions();
+
                 int count = adapter.getCount();
 
                 for (int i = count - 1; i >= 0; i--) {
@@ -118,6 +119,8 @@ public class MainActivity extends Activity {
                         }
                     }
                 }
+                fileTransfer.setText("파일 전송하기");
+                fileTransfer.setEnabled(true);
             }
         });
     }
@@ -139,11 +142,12 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        final Button StartEnd = (Button) findViewById(R.id.btnStartEnd);
+        final Button fileTransfer = (Button) findViewById(R.id.btnTransfer);
+        SparseBooleanArray checkedItems = listView.getCheckedItemPositions();
         if (IPvaild == true && listView.getCount() > 0) {
-            StartEnd.setEnabled(true);
+            fileTransfer.setEnabled(true);
         } else {
-            StartEnd.setEnabled(false);
+            fileTransfer.setEnabled(false);
         }
     }
 
