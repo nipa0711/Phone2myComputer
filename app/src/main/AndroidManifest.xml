@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.nipa0711.www.phone2mycomputer"
-    android:versionCode="7"
-    android:versionName="0.0.0.7">
+    android:versionCode="12"
+    android:versionName="0.0.0.12">
 
     <application
         android:allowBackup="true"
@@ -10,14 +10,18 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="keyboardHidden|screenSize|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".FolderBrowser"></activity>
+        <activity
+            android:name=".FolderBrowser"
+            android:configChanges="keyboardHidden|screenSize|orientation"></activity>
 
     </application>
 

@@ -23,7 +23,7 @@ public class TCPclient extends AsyncTask<String, String, String> {
 
         Socket sock;
         try {
-            sock = new Socket(params[0], 8282);
+            sock = new Socket(params[0], port);
             Log.d("=================", "Connecting...");
 
             // sendfile

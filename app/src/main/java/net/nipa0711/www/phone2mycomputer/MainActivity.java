@@ -1,11 +1,15 @@
 package net.nipa0711.www.phone2mycomputer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,6 +30,29 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // 화면 꺼짐 방지
+
+        SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
+        int alertShow = pref.getInt("alert", 0);
+
+        AlertDialog.Builder showAlert = new AlertDialog.Builder(MainActivity.this);
+        showAlert.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putInt("alert", 1);
+                editor.commit();
+
+                dialog.dismiss();     //닫기
+            }
+        });
+        showAlert.setMessage("현재 대량의 파일을 전송시 프로그램이 죽는 문제가 있습니다.");
+
+        if (alertShow == 0) {
+            showAlert.show();
+        }
 
         final ArrayList<String> items = new ArrayList<String>();
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, items);
@@ -60,7 +87,7 @@ public class MainActivity extends Activity {
         addFolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, FolderBrowser.class);
+                Intent intent = new Intent(getApplicationContext(), FolderBrowser.class);
                 startActivityForResult(intent, 1);
             }
         });
