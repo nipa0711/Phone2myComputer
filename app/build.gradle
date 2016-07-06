@@ -5,7 +5,7 @@ android {
     buildToolsVersion "24.0.0"
 
     defaultConfig {
-        applicationId "net.nipa011.www.phone2mycomputer"
+        applicationId "net.nipa0711.www.phone2mycomputer"
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
