@@ -35,16 +35,21 @@ public class TCPclient extends AsyncTask<String, String, String> {
             bis.read(fileData, 0, fileData.length);
 
             String fileName = myFile.getName();
+            String folderName = params[2];
 
             int fileNameSize = fileName.length();
             byte[] fileNameLen = intToByteArray(fileNameSize);
+
+            int folderNameSize = folderName.length();
+            byte[] folderNameLen = intToByteArray(folderNameSize);
 
             int bodySize = fileData.length;
             byte[] bodyLen = intToByteArray(bodySize);
 
             byte[] fileNameByte = fileName.getBytes("UTF-8");
+            byte[] folderNameByte = folderName.getBytes("UTF-8");
 
-            byte[] clientData = new byte[4 + 4 + fileNameByte.length + fileData.length];
+            byte[] clientData = new byte[4 + 4 + 4 + fileNameByte.length + folderNameByte.length + fileData.length];
 
             //System.arraycopy (원본, 원본 시작위치, 복사본, 복사본 시작위치, 복사본에 얼마만큼 원본의 자료를 쓸까)
             System.arraycopy(fileNameLen, 0, clientData, 0, fileNameLen.length);
@@ -53,15 +58,20 @@ public class TCPclient extends AsyncTask<String, String, String> {
             System.arraycopy(bodyLen, 0, clientData, 4, bodyLen.length);
             Log.d("===파일 용량 : ", "" + bodySize);
 
-            System.arraycopy(fileNameByte, 0, clientData, 8, fileNameByte.length);
-            Log.d("===파일 이름 : ", "" + fileName);
-            Log.d("===파일 이름 바이트 길이 : ", "" + fileNameByte.length);
+            System.arraycopy(folderNameLen, 0, clientData, 8, folderNameLen.length);
+            Log.d("===폴더 이름 길이 : ", "" + folderNameSize);
 
-            System.arraycopy(fileData, 0, clientData, 8 + fileNameByte.length, fileData.length);
+            System.arraycopy(fileNameByte, 0, clientData, 12, fileNameByte.length);
+            Log.d("===파일 이름 : ", "" + fileName);
+
+            System.arraycopy(folderNameByte, 0, clientData, 12 + fileNameByte.length, folderNameByte.length);
+            Log.d("===폴더 이름 : ", "" + folderName);
+
+            System.arraycopy(fileData, 0, clientData, 12 + fileNameByte.length + folderNameByte.length, fileData.length);
 
             OutputStream os = sock.getOutputStream();
             Log.d("=================", "Sending...");
-            Log.d(params[1] + " clientData.length : ", "" + clientData.length);
+            Log.d(params[1] + " 총 전송 크기 : ", "" + clientData.length);
 
             os.write(clientData);
             os.flush();

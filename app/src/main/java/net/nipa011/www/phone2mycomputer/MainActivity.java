@@ -89,42 +89,53 @@ public class MainActivity extends Activity {
             }
         });
 
-        final Button fileTransfer = (Button) findViewById(R.id.btnTransfer);
+
+        Button fileTransfer = (Button) findViewById(R.id.btnTransfer);
         fileTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 폴더 목록을 ArrayList 에 추가
-                ArrayList<String> folders = new ArrayList<String>();
+                ArrayList<String> folderPath = new ArrayList<String>();
+                ArrayList<String> folderName = new ArrayList<String>();
 
                 SparseBooleanArray checkedItems = listView.getCheckedItemPositions();
+
+                if (checkedItems.size() <= 0) {
+                    Toast.makeText(getApplicationContext(), "선택된 것이 없습니다.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 int count = adapter.getCount();
 
                 for (int i = count - 1; i >= 0; i--) {
                     if (checkedItems.get(i)) {
-                        folders.add(items.get(i));
+                        folderPath.add(items.get(i));
                         Log.d("==============폴더 목록 : ", items.get(i));
                     }
                 }
 
-                for (int i = 0; i < folders.size(); i++) {
-                    // ArrayList의 목록을 돌면서, 해당 폴더의 파일들을 구한다.
-                    String[] files = getFileList(folders.get(i));
+                for (int i = 0; i < folderPath.size(); i++) {
+                    // ArrayList의 폴더경로를 돌면서, 해당 폴더의 파일들을 구한다.
+                    String[] files = getFileList(folderPath.get(i));
+
+                    // ArrayList에 폴더이름만 집어넣는다.
+                    String[] dirs = folderPath.get(i).split("/");
+                    if (dirs != null && dirs.length > 0) {
+                        String folder = dirs[dirs.length - 1];
+                        folderName.add(folder);
+                        Log.d("============폴더이름 : ", folder);
+                    }
 
                     for (int j = 0; j < files.length; j++) {
-                        File file = new File(folders.get(i) + "/" + files[j]);
-                        if (!file.isDirectory()) {
-                            Log.d("=================", folders.get(i) + "/" + files[j]);
-                            new TCPclient().execute(ip, folders.get(i) + "/" + files[j]);
+                        File file = new File(folderPath.get(i) + "/" + files[j]);
+                        if (!file.isDirectory()) { // 경로를 포함하지 않고 파일만
+                            new TCPclient().execute(ip, folderPath.get(i) + "/" + files[j], folderName.get(i));
                         }
                     }
                 }
-                fileTransfer.setText("파일 전송하기");
-                fileTransfer.setEnabled(true);
             }
         });
     }
-
 
     // 특정 폴더의 파일 목록을 구해서 반환
     public String[] getFileList(String strPath) {
@@ -143,7 +154,6 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         final Button fileTransfer = (Button) findViewById(R.id.btnTransfer);
-        SparseBooleanArray checkedItems = listView.getCheckedItemPositions();
         if (IPvaild == true && listView.getCount() > 0) {
             fileTransfer.setEnabled(true);
         } else {
