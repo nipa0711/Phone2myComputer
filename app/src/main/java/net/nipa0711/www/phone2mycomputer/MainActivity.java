@@ -168,7 +168,7 @@ public class MainActivity extends Activity {
                 }
 
                 String[] sendList = filePath.toArray(new String[filePath.size()]);
-                new TCPclient(sendList, folderName, filesInFolder).execute(ip);
+                new TCPclient(sendList, folderName, filesInFolder, MainActivity.this).execute(ip);
             }
         });
     }
