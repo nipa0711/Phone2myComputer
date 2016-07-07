@@ -8,9 +8,10 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 
 /**
@@ -50,6 +51,8 @@ public class TCPclient extends AsyncTask<String, String, String> {
         int listCount = 0;
         publishProgress("max", Integer.toString(sendList.length));
 
+        //long start = System.currentTimeMillis(); // 실행시간 측정 시작
+
         for (int i = 0; i < arrFolderName.length; i++) {
 
             String folderName = arrFolderName[i];
@@ -63,66 +66,63 @@ public class TCPclient extends AsyncTask<String, String, String> {
 
                     // sendfile
                     File myFile = new File(sendList[listCount]);
-                    byte[] fileData = new byte[(int) myFile.length()];
+                    String fileName = myFile.getName(); // 파일명
+                    int bodySize = (int) myFile.length(); // 파일 용량
 
-                    FileInputStream fis = new FileInputStream(myFile);
-                    BufferedInputStream bis = new BufferedInputStream(fis);
-                    bis.read(fileData, 0, fileData.length);
+                    int fileNameSize = fileName.length(); // 파일 이름 길이 (파일 이름이 몇 글자인가)
+                    byte[] fileNameLen = intToByteArray(fileNameSize); // 파일 이름의 바이트 배열
 
-                    String fileName = myFile.getName();
+                    int folderNameSize = folderName.length(); // 폴더 이름 길이 (폴더 이름이 몇 글자인가)
+                    byte[] folderNameLen = intToByteArray(folderNameSize); // 폴더 이름의 바이트 배열
 
-                    int fileNameSize = fileName.length();
-                    byte[] fileNameLen = intToByteArray(fileNameSize);
+                    byte[] bodyLen = intToByteArray(bodySize); // 파일 용량의 바이트 배열
+                    byte[] fileNameByte = fileName.getBytes("UTF-8"); // 파일 이름의 바이트 배열
+                    byte[] folderNameByte = folderName.getBytes("UTF-8"); // 폴더 이름의 바이트 배열
 
-                    int folderNameSize = folderName.length();
-                    byte[] folderNameLen = intToByteArray(folderNameSize);
-
-                    int bodySize = fileData.length;
-                    byte[] bodyLen = intToByteArray(bodySize);
-
-                    byte[] fileNameByte = fileName.getBytes("UTF-8");
-                    byte[] folderNameByte = folderName.getBytes("UTF-8");
-
-                    byte[] clientData = new byte[4 + 4 + 4 + fileNameByte.length + folderNameByte.length + fileData.length];
+                    byte[] fileInfo = new byte[4 + 4 + 4 + fileNameByte.length + folderNameByte.length]; // 파일 정보 배열
 
                     //System.arraycopy (원본, 원본 시작위치, 복사본, 복사본 시작위치, 복사본에 얼마만큼 원본의 자료를 쓸까)
-                    System.arraycopy(fileNameLen, 0, clientData, 0, fileNameLen.length);
+                    System.arraycopy(fileNameLen, 0, fileInfo, 0, fileNameLen.length);
                     Log.d("===파일 이름 길이 : ", "" + fileNameSize);
 
-                    System.arraycopy(bodyLen, 0, clientData, 4, bodyLen.length);
+                    System.arraycopy(bodyLen, 0, fileInfo, 4, bodyLen.length);
                     Log.d("===파일 용량 : ", "" + bodySize);
 
-                    System.arraycopy(folderNameLen, 0, clientData, 8, folderNameLen.length);
+                    System.arraycopy(folderNameLen, 0, fileInfo, 8, folderNameLen.length);
                     Log.d("===폴더 이름 길이 : ", "" + folderNameSize);
 
-                    System.arraycopy(fileNameByte, 0, clientData, 12, fileNameByte.length);
+                    System.arraycopy(fileNameByte, 0, fileInfo, 12, fileNameByte.length);
                     Log.d("===파일 이름 : ", "" + fileName);
 
-                    System.arraycopy(folderNameByte, 0, clientData, 12 + fileNameByte.length, folderNameByte.length);
+                    System.arraycopy(folderNameByte, 0, fileInfo, 12 + fileNameByte.length, folderNameByte.length);
                     Log.d("===폴더 이름 : ", "" + folderName);
 
-                    System.arraycopy(fileData, 0, clientData, 12 + fileNameByte.length + folderNameByte.length, fileData.length);
-
-                    OutputStream os = sock.getOutputStream();
-
-                    Log.d(sendList[listCount] + " 총 전송 크기 : ", "" + clientData.length);
                     listCount++;
                     //작업 진행 마다 진행률을 갱신하기 위해 진행된 개수와 설명을 publishProgress() 로 넘겨줌.
                     publishProgress("progress", "" + listCount, fileName + " 전송 중...");
 
-                    /*ByteArrayInputStream stream = new ByteArrayInputStream(clientData);
-                    int count=0;
-                    byte[] buffer = new byte[1500];
-                    while((count=stream.read(buffer))!=-1)
-                    {
-                        os.write(buffer);
-                        os.flush();
-                    }*/
-                    os.write(clientData);
-                    os.flush();
-                    os.close();
+                    BufferedOutputStream out = new BufferedOutputStream(sock.getOutputStream());
+                    ByteArrayInputStream stream = new ByteArrayInputStream(fileInfo);
+                    int bytesRead = 0;
+                    byte[] buffer = new byte[fileInfo.length];
+                    while ((bytesRead = stream.read(buffer)) != -1) {
+                        out.write(buffer);
+                        out.flush();
+                    }
+
+                    BufferedInputStream reader = new BufferedInputStream(new FileInputStream(myFile));
+                    buffer = new byte[4096];
+                    int bytesSent = 0;
+                    bytesRead = 0;
+                    while ((bytesRead = reader.read(buffer)) != -1) {
+                        out.write(buffer, 0, bytesRead);
+                        out.flush();
+                        bytesSent += bytesRead;
+                    }
+                    reader.close();
                     sock.close();
 
+                    Log.d(sendList[listCount - 1] + " 총 전송 크기 : ", "" + (fileInfo.length + bodySize));
                     Log.d("=================", "전송완료");
 
                 } catch (Exception e) {
@@ -133,6 +133,9 @@ public class TCPclient extends AsyncTask<String, String, String> {
                 }
             }
         }
+
+        /*long end = System.currentTimeMillis(); // 실행시간 측정 종료
+        Log.d("===============실행시간",""+((end-start)/1000.0));*/
 
         return null;
     }

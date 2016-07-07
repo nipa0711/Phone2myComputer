@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
                 dialog.dismiss();     //닫기
             }
         });
-        showAlert.setMessage("동영상을 비롯한 대용량의 파일 전송시 어플이 죽는 현상이 있습니다.");
+        showAlert.setMessage("Created by nipa0711\n버그 제보는 nipa0711@gmail.com 으로 해주세요.\n\n감사합니다!");
 
         if (alertShow == 0) {
             showAlert.show();
