@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
                 dialog.dismiss();     //닫기
             }
         });
-        showAlert.setMessage("현재 대량의 파일을 전송시 프로그램이 죽는 문제가 있습니다.");
+        showAlert.setMessage("동영상을 비롯한 대용량의 파일 전송시 어플이 죽는 현상이 있습니다.");
 
         if (alertShow == 0) {
             showAlert.show();

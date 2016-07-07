@@ -59,6 +59,7 @@ public class TCPclient extends AsyncTask<String, String, String> {
                 try {
                     sock = new Socket(params[0], port);
                     Log.d("=================", "Connecting...");
+                    Log.d("=================", listCount + 1 + "번째 파일 전송 중..");
 
                     // sendfile
                     File myFile = new File(sendList[listCount]);
@@ -108,8 +109,18 @@ public class TCPclient extends AsyncTask<String, String, String> {
                     listCount++;
                     //작업 진행 마다 진행률을 갱신하기 위해 진행된 개수와 설명을 publishProgress() 로 넘겨줌.
                     publishProgress("progress", "" + listCount, fileName + " 전송 중...");
+
+                    /*ByteArrayInputStream stream = new ByteArrayInputStream(clientData);
+                    int count=0;
+                    byte[] buffer = new byte[1500];
+                    while((count=stream.read(buffer))!=-1)
+                    {
+                        os.write(buffer);
+                        os.flush();
+                    }*/
                     os.write(clientData);
                     os.flush();
+                    os.close();
                     sock.close();
 
                     Log.d("=================", "전송완료");
