@@ -6,10 +6,8 @@ import android.util.Log;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 /**
  * Created by nipa0711 on 2016-07-01.
@@ -17,72 +15,91 @@ import java.net.UnknownHostException;
 public class TCPclient extends AsyncTask<String, String, String> {
 
     private final int port = 8282;
+    String[] sendList;
+    String[] arrFolderName;
+    int[] filesInFolder;
+
+    public TCPclient(String[] sendList, String[] arrFolderName, int[] filesInFolder) {
+        this.sendList = sendList;
+        this.arrFolderName = arrFolderName;
+        this.filesInFolder = filesInFolder;
+    }
 
     @Override
     protected String doInBackground(String... params) {
 
         Socket sock;
-        try {
-            sock = new Socket(params[0], port);
-            Log.d("=================", "Connecting...");
+        int listCount = 0;
 
-            // sendfile
-            File myFile = new File(params[1]);
-            byte[] fileData = new byte[(int) myFile.length()];
+        for (int i = 0; i < arrFolderName.length; i++) {
 
-            FileInputStream fis = new FileInputStream(myFile);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            bis.read(fileData, 0, fileData.length);
+            String folderName = arrFolderName[i];
+            int filesCount = filesInFolder[i];
 
-            String fileName = myFile.getName();
-            String folderName = params[2];
+            for (int j = 0; j < filesCount; j++) {
+                try {
+                    sock = new Socket(params[0], port);
+                    Log.d("=================", "Connecting...");
 
-            int fileNameSize = fileName.length();
-            byte[] fileNameLen = intToByteArray(fileNameSize);
+                    // sendfile
+                    File myFile = new File(sendList[listCount]);
+                    byte[] fileData = new byte[(int) myFile.length()];
 
-            int folderNameSize = folderName.length();
-            byte[] folderNameLen = intToByteArray(folderNameSize);
+                    FileInputStream fis = new FileInputStream(myFile);
+                    BufferedInputStream bis = new BufferedInputStream(fis);
+                    bis.read(fileData, 0, fileData.length);
 
-            int bodySize = fileData.length;
-            byte[] bodyLen = intToByteArray(bodySize);
+                    String fileName = myFile.getName();
 
-            byte[] fileNameByte = fileName.getBytes("UTF-8");
-            byte[] folderNameByte = folderName.getBytes("UTF-8");
+                    int fileNameSize = fileName.length();
+                    byte[] fileNameLen = intToByteArray(fileNameSize);
 
-            byte[] clientData = new byte[4 + 4 + 4 + fileNameByte.length + folderNameByte.length + fileData.length];
+                    int folderNameSize = folderName.length();
+                    byte[] folderNameLen = intToByteArray(folderNameSize);
 
-            //System.arraycopy (원본, 원본 시작위치, 복사본, 복사본 시작위치, 복사본에 얼마만큼 원본의 자료를 쓸까)
-            System.arraycopy(fileNameLen, 0, clientData, 0, fileNameLen.length);
-            Log.d("===파일 이름 길이 : ", "" + fileNameSize);
+                    int bodySize = fileData.length;
+                    byte[] bodyLen = intToByteArray(bodySize);
 
-            System.arraycopy(bodyLen, 0, clientData, 4, bodyLen.length);
-            Log.d("===파일 용량 : ", "" + bodySize);
+                    byte[] fileNameByte = fileName.getBytes("UTF-8");
+                    byte[] folderNameByte = folderName.getBytes("UTF-8");
 
-            System.arraycopy(folderNameLen, 0, clientData, 8, folderNameLen.length);
-            Log.d("===폴더 이름 길이 : ", "" + folderNameSize);
+                    byte[] clientData = new byte[4 + 4 + 4 + fileNameByte.length + folderNameByte.length + fileData.length];
 
-            System.arraycopy(fileNameByte, 0, clientData, 12, fileNameByte.length);
-            Log.d("===파일 이름 : ", "" + fileName);
+                    //System.arraycopy (원본, 원본 시작위치, 복사본, 복사본 시작위치, 복사본에 얼마만큼 원본의 자료를 쓸까)
+                    System.arraycopy(fileNameLen, 0, clientData, 0, fileNameLen.length);
+                    Log.d("===파일 이름 길이 : ", "" + fileNameSize);
 
-            System.arraycopy(folderNameByte, 0, clientData, 12 + fileNameByte.length, folderNameByte.length);
-            Log.d("===폴더 이름 : ", "" + folderName);
+                    System.arraycopy(bodyLen, 0, clientData, 4, bodyLen.length);
+                    Log.d("===파일 용량 : ", "" + bodySize);
 
-            System.arraycopy(fileData, 0, clientData, 12 + fileNameByte.length + folderNameByte.length, fileData.length);
+                    System.arraycopy(folderNameLen, 0, clientData, 8, folderNameLen.length);
+                    Log.d("===폴더 이름 길이 : ", "" + folderNameSize);
 
-            OutputStream os = sock.getOutputStream();
-            Log.d("=================", "Sending...");
-            Log.d(params[1] + " 총 전송 크기 : ", "" + clientData.length);
+                    System.arraycopy(fileNameByte, 0, clientData, 12, fileNameByte.length);
+                    Log.d("===파일 이름 : ", "" + fileName);
 
-            os.write(clientData);
-            os.flush();
+                    System.arraycopy(folderNameByte, 0, clientData, 12 + fileNameByte.length, folderNameByte.length);
+                    Log.d("===폴더 이름 : ", "" + folderName);
 
-            sock.close();
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+                    System.arraycopy(fileData, 0, clientData, 12 + fileNameByte.length + folderNameByte.length, fileData.length);
+
+                    OutputStream os = sock.getOutputStream();
+
+                    Log.d(sendList[listCount] + " 총 전송 크기 : ", "" + clientData.length);
+
+                    listCount++;
+                    os.write(clientData);
+                    os.flush();
+                    sock.close();
+                    Log.d("=================", "전송완료");
+
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    Log.d("=================", "전송오류");
+                    continue;
+                }
+            }
         }
 
         return null;

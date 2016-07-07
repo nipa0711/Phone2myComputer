@@ -116,14 +116,13 @@ public class MainActivity extends Activity {
             }
         });
 
-
         Button fileTransfer = (Button) findViewById(R.id.btnTransfer);
         fileTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 폴더 목록을 ArrayList 에 추가
                 ArrayList<String> folderPath = new ArrayList<String>();
-                ArrayList<String> folderName = new ArrayList<String>();
+                ArrayList<String> filePath = new ArrayList<String>();
 
                 SparseBooleanArray checkedItems = listView.getCheckedItemPositions();
 
@@ -141,6 +140,9 @@ public class MainActivity extends Activity {
                     }
                 }
 
+                String[] folderName = new String[folderPath.size()];
+                int dirSize = 0;
+                int[] filesInFolder = new int[folderPath.size()];
                 for (int i = 0; i < folderPath.size(); i++) {
                     // ArrayList의 폴더경로를 돌면서, 해당 폴더의 파일들을 구한다.
                     String[] files = getFileList(folderPath.get(i));
@@ -149,17 +151,24 @@ public class MainActivity extends Activity {
                     String[] dirs = folderPath.get(i).split("/");
                     if (dirs != null && dirs.length > 0) {
                         String folder = dirs[dirs.length - 1];
-                        folderName.add(folder);
+                        folderName[i] = folder;
                         Log.d("============폴더이름 : ", folder);
                     }
+
+                    int countFiles = 0;
 
                     for (int j = 0; j < files.length; j++) {
                         File file = new File(folderPath.get(i) + "/" + files[j]);
                         if (!file.isDirectory()) { // 경로를 포함하지 않고 파일만
-                            new TCPclient().execute(ip, folderPath.get(i) + "/" + files[j], folderName.get(i));
+                            filePath.add(folderPath.get(i) + "/" + files[j]);
+                            countFiles++;
                         }
                     }
+                    filesInFolder[i] = countFiles;
                 }
+
+                String[] sendList = filePath.toArray(new String[filePath.size()]);
+                new TCPclient(sendList, folderName, filesInFolder).execute(ip);
             }
         });
     }
