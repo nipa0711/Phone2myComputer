@@ -2,9 +2,12 @@ package net.nipa0711.www.phone2mycomputer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -32,6 +35,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // 화면 꺼짐 방지
+
 
         SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
         int alertShow = pref.getInt("alert", 0);
@@ -120,6 +124,24 @@ public class MainActivity extends Activity {
         fileTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // WIFI 확인
+                ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                if (activeNetwork != null) { // connected to the internet
+                    if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                        // connected to wifi
+                    } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
+                        // connected to the mobile provider's data plan
+                        Toast.makeText(getApplicationContext(), "WIFI에 연결해주세요", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                } else {
+                    // not connected to the internet
+                    Toast.makeText(getApplicationContext(), "인터넷에 연결되어 있지 않습니다.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+
                 // 폴더 목록을 ArrayList 에 추가
                 ArrayList<String> folderPath = new ArrayList<String>();
                 ArrayList<String> filePath = new ArrayList<String>();

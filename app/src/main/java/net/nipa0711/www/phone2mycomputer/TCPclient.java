@@ -129,6 +129,7 @@ public class TCPclient extends AsyncTask<String, String, String> {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                     Log.d("=================", "전송오류");
+
                     continue;
                 }
             }
