@@ -24,7 +24,7 @@
             android:layout_weight="1"
             android:digits="1234567890."
             android:hint="내부네트워크 IP주소"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:minWidth="200dp"
             android:textSize="20dp" />
 

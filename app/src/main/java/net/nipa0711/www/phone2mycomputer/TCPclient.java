@@ -69,27 +69,29 @@ public class TCPclient extends AsyncTask<String, String, String> {
                     String fileName = myFile.getName(); // 파일명
                     int bodySize = (int) myFile.length(); // 파일 용량
 
-                    int fileNameSize = fileName.length(); // 파일 이름 길이 (파일 이름이 몇 글자인가)
-                    byte[] fileNameLen = intToByteArray(fileNameSize); // 파일 이름의 바이트 배열
-
-                    int folderNameSize = folderName.length(); // 폴더 이름 길이 (폴더 이름이 몇 글자인가)
-                    byte[] folderNameLen = intToByteArray(folderNameSize); // 폴더 이름의 바이트 배열
-
                     byte[] bodyLen = intToByteArray(bodySize); // 파일 용량의 바이트 배열
                     byte[] fileNameByte = fileName.getBytes("UTF-8"); // 파일 이름의 바이트 배열
                     byte[] folderNameByte = folderName.getBytes("UTF-8"); // 폴더 이름의 바이트 배열
 
+                    int fileNameByteSize = fileNameByte.length; // 파일 이름 바이트 배열의 크기
+                    byte[] fileNameByteLen = intToByteArray(fileNameByteSize);
+
+                    int folderNameByteSize = folderNameByte.length; // 폴더 이름 바이트 배열의 크기
+                    byte[] folderNameByteLen = intToByteArray(folderNameByteSize);
+
+
+
                     byte[] fileInfo = new byte[4 + 4 + 4 + fileNameByte.length + folderNameByte.length]; // 파일 정보 배열
 
                     //System.arraycopy (원본, 원본 시작위치, 복사본, 복사본 시작위치, 복사본에 얼마만큼 원본의 자료를 쓸까)
-                    System.arraycopy(fileNameLen, 0, fileInfo, 0, fileNameLen.length);
-                    Log.d("===파일 이름 길이 : ", "" + fileNameSize);
+                    System.arraycopy(fileNameByteLen, 0, fileInfo, 0, fileNameByteLen.length);
+                    Log.d("===파일 이름 바이트 배열 크기 : ", "" + fileNameByteSize);
 
                     System.arraycopy(bodyLen, 0, fileInfo, 4, bodyLen.length);
                     Log.d("===파일 용량 : ", "" + bodySize);
 
-                    System.arraycopy(folderNameLen, 0, fileInfo, 8, folderNameLen.length);
-                    Log.d("===폴더 이름 길이 : ", "" + folderNameSize);
+                    System.arraycopy(folderNameByteLen, 0, fileInfo, 8, folderNameByteLen.length);
+                    Log.d("===폴더 이름 바이트 배열 크기 : ", "" + folderNameByteSize);
 
                     System.arraycopy(fileNameByte, 0, fileInfo, 12, fileNameByte.length);
                     Log.d("===파일 이름 : ", "" + fileName);
@@ -97,7 +99,7 @@ public class TCPclient extends AsyncTask<String, String, String> {
                     System.arraycopy(folderNameByte, 0, fileInfo, 12 + fileNameByte.length, folderNameByte.length);
                     Log.d("===폴더 이름 : ", "" + folderName);
 
-                    listCount++;
+
                     //작업 진행 마다 진행률을 갱신하기 위해 진행된 개수와 설명을 publishProgress() 로 넘겨줌.
                     publishProgress("progress", "" + listCount, fileName + " 전송 중...");
 
@@ -122,8 +124,9 @@ public class TCPclient extends AsyncTask<String, String, String> {
                     reader.close();
                     sock.close();
 
-                    Log.d(sendList[listCount - 1] + " 총 전송 크기 : ", "" + (fileInfo.length + bodySize));
+                    Log.d(sendList[listCount] + " 총 전송 크기 : ", "" + (fileInfo.length + bodySize));
                     Log.d("=================", "전송완료");
+                    listCount++;
 
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
